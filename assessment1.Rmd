@@ -1,0 +1,149 @@
+---
+title: "Assessment 1"
+author: "Tanishka sharma s4647553"
+date: "26/12/2021"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# RMarkdown editing
+**R Markdown** provides an unified authoring framework for data science, combining your code, its results, and your prose commentary. R Markdown documents are fully reproducible and support dozens of output formats, like *PDFs*, *Word files*, *slideshows*, and *more*.
+
+<https://rmarkdown.rstudio.com/lesson-8.html>.
+
+#point 6
+```{r}
+library(tidyverse)
+fastfood<-read.csv("fastfood_calories.csv")
+```
+#point 7
+#Display the first 10 rows of the dataset using head() and kable()
+```{r}
+
+head(fastfood, 10) 
+
+knitr::kable(head(fastfood[, 1:5],10))
+```
+#point 8
+#Display the observations that has more than 1000 calories
+```{r}
+knitr::kable((subset(fastfood, calories>1000)))
+```
+#point 9
+#Arrange observations with more than 40 in total_fat and more than 80 in total_carb in the descending order and save them to a new variable
+```{r}
+dont_eat_this<-knitr::kable((subset(fastfood, total_fat>40 & total_carb>80))) 
+
+print(dont_eat_this)
+```
+#point 10
+#
+```{r}
+heavy_food<-knitr::kable((subset(fastfood, calories>500)) %>%  count(restaurant)) 
+print('Heavy')
+print(heavy_food)
+heavy_food<-knitr::kable((subset(fastfood, calories>250))%>%  count(restaurant)) 
+print('Average')
+print(heavy_food)
+heavy_food<-knitr::kable((subset(fastfood, calories<250))%>%  count(restaurant)) 
+print('Medium')
+print(heavy_food)
+```
+#point 11
+#Display the types of variables in the dataset using `skimr` package
+```{r}
+library(skimr)
+skim(fastfood) %>%  summary() 
+```
+
+#point 12
+#Present the count observations from each restaurant in a descending order
+```{r}
+knitr::kable(fastfood %>% group_by(restaurant) %>%  count(restaurant) %>% arrange(desc(n)))
+```
+#point13
+#Using groupings (group_by()), summarise and display the average number of calories for each restaurant
+```{r}
+knitr::kable(fastfood %>% group_by(restaurant) %>% summarise(calories = mean(calories)))
+```
+#point14
+#Add variables to the dataset, which:
+
+#-  calculates the average calories per type of restaurant and call it average_calories 
+#-  calculates the maximum total_fat per type of restaurant and call it max_fat 
+#-  calculates the minimum cholesterol per type of restaurant and call it min_cholesterol
+```{r}
+average_calories<-knitr::kable(fastfood %>% group_by(restaurant) %>% summarise(calories = mean(calories)))
+
+max_fat<-knitr::kable(fastfood %>% group_by(restaurant) %>% summarise(total_fat =max(total_fat)))
+
+min_cholesterol<-knitr::kable(fastfood %>% group_by(restaurant) %>% summarise(cholesterol= min(cholesterol)))
+
+
+```
+#point15
+#Display the data vis of total fat per each type of restaurant. Write a narration (2-3 sentences) why you believe this type of data viz presents such information best
+```{r}
+fastfood %>% group_by(restaurant) %>% summarise(total_fat = sum(total_fat)) %>%    
+ggplot() +   aes(x = restaurant, fill = restaurant, weight = total_fat) +   geom_bar() +   scale_fill_hue() +   labs(x = "Restaurant_Type", y = "Total_fats", title = "Bar Chart", subtitle = " Fat based on restaurant", caption = "Total Fat on eachRestaurant", fill = "Legend")  
+```
+<p>
+There are various types of restaurants in the city, each type of restaurant is having its own ginature dish, Each dish is having different amount of calories. Ther highest calorires are in the Burger King.</p>
+
+#point16
+#Add a variable to the dataset, which calculates the sum of cholesterol and sodium and call it cholesterol_sodium
+```{r}
+cholesterol_sodium<-knitr::kable(fastfood %>% group_by(restaurant) %>% summarise(total = sum(cholesterol,sodium)))
+```
+
+#point17
+#Use observations for Mcdonalds to plot sugar variable against protein with geom_point()
+```{r}
+observations<-head((subset(fastfood, restaurant=='Mcdonalds')),50)
+p<-ggplot(data.frame(observations),aes(sugar, protein)) 
+p+ geom_point()
+```
+#point18
+#Identify variable(s) which should be factors and transform their type into a factor variable.
+```{r}
+factors1 <- factor(fastfood$restaurant)
+levels(factors1)
+
+```
+#point19
+#Create two new variables:
+#Read about cut_number() function using Help and add a new variable to the dataset calories_type. Use calories variable for cut_number() function to split it into 3 categories n=3, add labels labels=c(low, med, high) and make the dataset ordered by arranging it according to calories. 
+```{r}
+labels=c("low", "med", "high")
+calories_type<-cut_number(fastfood$calories,3,labels)
+```
+#point20
+#Create a dataviz that shows the distribution of `calories_type` in food items for each type of restaurant. Think carefully about the choice of data viz. Use facets, coordinates and theme layers to make your data viz visually appealing and meaningful. Use factors related data viz functions.
+```{r}
+fastfood %>% group_by(restaurant) %>%    
+ggplot() +   aes(x = fastfood$restaurant, fill = fastfood$restaurant, weight = calories) +   geom_bar() +   scale_fill_hue() +   labs(x = "Restaurant_Type", y = "Calories_Type", title = "Calories each restaurant", subtitle = "Calories each restaurant", caption = "Calories each restaurant", fill = "Legend")  
+```
+#point21
+#The second variable should show the percentage of trans_fat in total_fat. Add the variable to the dataset and call it trans_fat_percent. Do not forget to save the updated dataset
+```{r}
+trans_fat_percent<-knitr::kable(fastfood %>% summarise(trans_fat_percent =trans_fat/total_fat*100 ))
+```
+#point22
+#Create a dataviz that shows the distribution of `trans_fat` in food items for each type of restaurant. Think carefully about the choice of data viz. Use facets, coordinates and theme layers to make your data viz visually appealing and meaningful.
+```{r}
+fastfood %>% group_by(restaurant) %>%    
+ggplot() +   aes(x = fastfood$restaurant, fill = fastfood$restaurant, weight = trans_fat) +   geom_bar() +   scale_fill_hue() +   labs(x = "Restaurant", y = "trans_fat", title = "Trans_fat per restaurant", subtitle = "trans_fat per restaurant", caption = "trans_fat per restaurant", fill = "Legend") 
+```
+#point23
+#Calculate and show the average (mean)total_fat for each type of restaurant. No need to save it as a variable.
+```{r}
+knitr::kable(fastfood %>% group_by(restaurant) %>% summarise(total_fat = mean(total_fat)))
+```
+#point24
+#And create a dataviz that allow to compare different restaurants on this variable (total_fat). You can present it on one dataviz (= no facets). 
+```{r}
+fastfood %>% group_by(restaurant) %>%    
+ggplot() +   aes(x = fastfood$restaurant, fill = fastfood$restaurant, weight = total_fat) +   geom_bar() +   scale_fill_hue() +   labs(x = "Restaurant", y = "total_fat", title = "total_fat per restaurant", subtitle = "total_fat per restaurant", caption = "total_fat per restaurant", fill = "Legend") 
+```
+
